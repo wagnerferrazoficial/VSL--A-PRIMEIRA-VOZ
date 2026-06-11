@@ -302,15 +302,48 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
     }
   };
 
-  // Retention Strategy Math Profile:
-  // - Real progress is from 0% to 50%: scale fake progress to reach 75% rapidly (factor of 1.5x)
-  // - Real progress is from 50% to 100%: progress slowly increases from 75% up to 100% (factor of 0.5x)
+  // Non-linear retention-optimized progress mapping:
+  // Maps the real video progress to compressed/accelerated screen progress for high conversion.
   let perceivedProgress = 0;
   if (hasUnmuted) {
-    if (progress <= 50) {
-      perceivedProgress = progress * 1.5;
+    const p = progress;
+    if (p <= 0) {
+      perceivedProgress = 0;
+    } else if (p >= 100) {
+      perceivedProgress = 100;
     } else {
-      perceivedProgress = 75 + (progress - 50) * 0.5;
+      // Piecewise mapping checkpoints requested:
+      // 0% real = 0% visual
+      // 20% real = 40% visual
+      // 40% real = 65% visual
+      // 60% real = 82% visual
+      // 75% real = 90% visual
+      // 85% real = 94% visual
+      // 90% real = 96% visual
+      // 95% real = 98% visual
+      // 100% real = 100% visual
+      const points = [
+        [0, 0],
+        [20, 40],
+        [40, 65],
+        [60, 82],
+        [75, 90],
+        [85, 94],
+        [90, 96],
+        [95, 98],
+        [100, 100]
+      ];
+
+      for (let i = 0; i < points.length - 1; i++) {
+        const [x0, y0] = points[i];
+        const [x1, y1] = points[i + 1];
+        if (p >= x0 && p <= x1) {
+          // Linear interpolation: y = y0 + (p - x0) * (y1 - y0) / (x1 - x0)
+          const ratio = (p - x0) / (x1 - x0);
+          perceivedProgress = y0 + ratio * (y1 - y0);
+          break;
+        }
+      }
     }
   }
   // Clamp boundaries safely between 0 and 100
@@ -390,38 +423,38 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
 
       {/* Paused Modal Overlay containing premium options: resume vs restart */}
       {isVideoFullyActive && isPlayerPaused && (
-        <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/15 backdrop-blur-xs transition-all duration-300">
-          <div className="bg-white/95 border border-neutral-200/80 p-6 rounded-2xl max-w-sm w-[90%] text-center shadow-2xl animate-in zoom-in-95 duration-200">
+        <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/40 backdrop-blur-xs transition-all duration-300">
+          <div className="bg-white/95 border border-neutral-200/80 p-3 sm:p-5 md:p-6 rounded-2xl max-w-sm w-[92%] text-center shadow-2xl animate-in zoom-in-95 duration-200">
             {/* Visual pause emblem */}
-            <div className="w-12 h-12 rounded-full bg-orange-50/80 text-orange-600 flex items-center justify-center mx-auto mb-3 animate-pulse">
-              <Pause className="w-6 h-6 stroke-[2.5]" />
+            <div className="w-8 h-8 md:w-12 md:h-12 rounded-full bg-orange-50/80 text-orange-600 flex items-center justify-center mx-auto mb-1.5 md:mb-3 animate-pulse">
+              <Pause className="w-4 h-4 md:w-6 md:h-6 stroke-[2.5]" />
             </div>
             
-            <h3 className="text-neutral-900 text-sm font-black uppercase tracking-wider mb-1">
+            <h3 className="text-neutral-900 text-[10px] sm:text-xs md:text-sm font-black uppercase tracking-wider mb-0.5 md:mb-1">
               Vídeo Pausado
             </h3>
-            <p className="text-neutral-600 text-xs mb-5 px-3">
-              Escolha uma opção para continuar assistindo à apresentação:
+            <p className="text-neutral-600 text-[9px] sm:text-xs mb-3 md:mb-5 px-1 md:px-3 leading-tight">
+              Escolha uma opção para continuar:
             </p>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2 md:gap-3 w-full">
               {/* Option 1: Voltar De Onde Parou (Resume) */}
               <button
                 onClick={resumeVideo}
-                className="w-full h-11 py-2.5 px-4 bg-orange-500 hover:bg-orange-600 active:scale-95 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md shadow-orange-500/20 flex items-center justify-center gap-2 cursor-pointer"
-                style={{ minHeight: "44px" }}
+                className="w-full h-9 md:h-11 py-1.5 px-2 bg-orange-500 hover:bg-orange-600 active:scale-95 text-white font-bold text-[9px] sm:text-[10px] md:text-xs uppercase tracking-wider rounded-lg md:rounded-xl transition-all shadow-md shadow-orange-500/20 flex items-center justify-center gap-1 md:gap-2 cursor-pointer select-none"
+                style={{ minHeight: "36px" }}
               >
-                <Play className="w-3.5 h-3.5 fill-white text-white" />
+                <Play className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 fill-white text-white" />
                 <span>Voltar aonde parou</span>
               </button>
 
               {/* Option 2: Recomeçar do Início (Restart) */}
               <button
                 onClick={restartVideo}
-                className="w-full h-11 py-2.5 px-4 bg-neutral-100 hover:bg-neutral-200 hover:text-neutral-900 active:scale-95 text-neutral-700 font-bold text-xs uppercase tracking-wider rounded-xl transition-all border border-neutral-300/60 flex items-center justify-center gap-2 cursor-pointer"
-                style={{ minHeight: "44px" }}
+                className="w-full h-9 md:h-11 py-1.5 px-2 bg-neutral-100 hover:bg-neutral-200 hover:text-neutral-900 active:scale-95 text-neutral-700 font-bold text-[9px] sm:text-[10px] md:text-xs uppercase tracking-wider rounded-lg md:rounded-xl transition-all border border-neutral-300/60 flex items-center justify-center gap-1 md:gap-2 cursor-pointer select-none"
+                style={{ minHeight: "36px" }}
               >
-                <RotateCcw className="w-3.5 h-3.5 text-neutral-500" />
+                <RotateCcw className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 text-neutral-500" />
                 <span>Recomeçar do início</span>
               </button>
             </div>
@@ -461,7 +494,7 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
 
             {/* Direct Inline Accessible Volume Control (No hover hurdles, incredibly easy to slide on mobile) */}
             <div 
-              className="flex items-center gap-1.5 relative bg-neutral-950/40 border border-neutral-900/20 px-2 py-1 rounded-lg"
+              className="flex items-center gap-1.5 relative bg-neutral-950/40 border border-neutral-900/20 px-1.5 py-1 rounded-lg"
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
               onClick={(e) => e.stopPropagation()}
@@ -488,12 +521,12 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
                 max="100"
                 value={isMuted ? 0 : volume}
                 onChange={handleVolumeChange}
-                className="w-12 sm:w-16 h-1.5 bg-neutral-700/80 rounded-lg appearance-none cursor-pointer accent-orange-500 focus:outline-none leading-none"
+                className="hidden sm:inline-block w-12 sm:w-16 h-1.5 bg-neutral-700/80 rounded-lg appearance-none cursor-pointer accent-orange-500 focus:outline-none leading-none"
                 style={{
                   WebkitAppearance: "none",
                 }}
               />
-              <span className="text-[9px] font-mono font-medium text-neutral-300 select-none min-w-[22px] text-right">
+              <span className="hidden sm:inline-block text-[9px] font-mono font-medium text-neutral-300 select-none min-w-[22px] text-right">
                 {isMuted ? "0%" : `${volume}%`}
               </span>
             </div>

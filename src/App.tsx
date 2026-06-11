@@ -3,30 +3,26 @@ import { ShieldCheck, ChevronRight } from "lucide-react";
 import VSLPlayer from "./components/VSLPlayer";
 
 export default function App() {
-  const [showCTA, setShowCTA] = useState(() => {
-    return localStorage.getItem("vsl_cta_revealed") === "true";
-  });
+  const [showCTA, setShowCTA] = useState(false);
 
   const handleTimeUpdate = (seconds: number) => {
     if (seconds >= 1000 && !showCTA) {
       setShowCTA(true);
-      localStorage.setItem("vsl_cta_revealed", "true");
     }
   };
 
   return (
-    <div className="h-screen md:h-auto md:min-h-screen bg-white flex flex-col items-center justify-center p-0 font-sans antialiased overflow-hidden md:overflow-visible">
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center py-6 px-4 md:py-10 font-sans antialiased overflow-y-auto">
       {/* 
         Responsive Container
-        - Adapts flawlessly: Full screen and centered on mobile.
-        - Frameless, premium centered single-column layout on all devices with a unified white background.
+        - Adapts flawlessly: Frameless, premium centered single-column layout on all devices with a unified white background.
       */}
-      <div className="w-full h-full md:h-auto md:max-w-[80vw] lg:max-w-[80%] bg-white flex flex-col relative overflow-hidden transition-all duration-300">
+      <div className="w-full max-w-5xl bg-white flex flex-col relative transition-all duration-300">
         
-        {/* Content Container - Centered vertical stack, starting with tight top padding on desktop to keep distance at exactly one line width */}
-        <div className="flex-1 h-full flex flex-col justify-center md:justify-start items-center text-center px-6 py-4 md:px-12 md:pt-[40px] md:pb-16 relative gap-4 md:gap-8">
+        {/* Content Container - Centered vertical stack, perfectly optimized to occupy ~90% of screen height between text and VSL */}
+        <div className="flex-1 flex flex-col justify-center items-center text-center px-4 py-2 md:px-8 relative gap-5 md:gap-7">
           
-          <div className="flex flex-col items-center gap-2 md:gap-4">
+          <div className="flex flex-col items-center gap-3 md:gap-4 shrink-0">
             {/* Headline / Título (Exactly 2 lines on desktop, elevated by 40% on mobile to 21px) */}
             <h1 className="font-display text-[21px] md:text-3xl lg:text-4xl font-extrabold text-neutral-900 tracking-tight leading-snug max-w-[340px] md:max-w-4xl uppercase">
               A maioria dos pais só percebem que perderam a influência<br className="hidden md:inline" /> sobre o filho, quando já é tarde demais.
@@ -38,14 +34,14 @@ export default function App() {
             </p>
           </div>
 
-          {/* Optimized Portrait VSL Player in vertical alignment - constrained on mobile to fit exactly within 1 page */}
-          <div className="w-[50vw] max-w-[210px] sm:max-w-[240px] md:w-[320px] md:max-w-none relative transition-all duration-300 shadow-2xl rounded-2xl overflow-hidden border border-neutral-100/10">
+          {/* Optimized Portrait VSL Player in vertical alignment for all devices - scaled based on height to occupy ~90% with the text above */}
+          <div className="h-[48vh] sm:h-[50vh] md:h-[53vh] lg:h-[55vh] aspect-[9/16] w-auto relative transition-all duration-300 shadow-2xl rounded-2xl overflow-hidden border border-neutral-100/10 shrink-0">
             <VSLPlayer videoId="K65rE1bHIaM" isPortrait={true} onTimeUpdate={handleTimeUpdate} />
           </div>
 
           {/* Premium Green CTA Button - Styled with vibrant colors, high-impact pulsate animation, and secure seals */}
           {showCTA && (
-            <div className="w-full max-w-[350px] md:max-w-[480px] flex flex-col items-center gap-3 animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out z-10">
+            <div className="w-full max-w-[350px] md:max-w-[480px] flex flex-col items-center gap-3 animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out z-10 mt-2">
               
               {/* Pulsing Emerald Green CTA Button */}
               <a
@@ -67,19 +63,6 @@ export default function App() {
               </div>
             </div>
           )}
-
-          {/* Test/Preview simulator - beautifully tucked away for easy QA/reviewing */}
-          <button 
-            onClick={() => {
-              const nextState = !showCTA;
-              setShowCTA(nextState);
-              localStorage.setItem("vsl_cta_revealed", String(nextState));
-            }}
-            className="text-[10px] sm:text-[11px] font-mono tracking-wider text-neutral-400 hover:text-emerald-500 hover:bg-neutral-50 px-3 py-1 rounded-full transition-all cursor-pointer z-10 select-none border border-neutral-100"
-            id="btn-test-preview-toggle"
-          >
-            {showCTA ? "✖ OCULTAR OFERTA (TESTE)" : "⚡ SIMULAR 1000s (TESTAR BOTÃO DE CHECKOUT)"}
-          </button>
 
         </div>
 
