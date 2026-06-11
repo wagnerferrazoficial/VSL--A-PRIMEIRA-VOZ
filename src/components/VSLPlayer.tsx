@@ -353,7 +353,12 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
       {!isVideoFullyActive && (
         <button
           onClick={handleUnmuteClick}
-          className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-neutral-950/95 backdrop-blur-[4px] transition-all duration-300 pointer-events-auto cursor-pointer"
+          className="absolute inset-0 z-20 flex flex-col items-center justify-center transition-all duration-500 pointer-events-auto cursor-pointer"
+          style={{
+            backgroundImage: `linear-gradient(to bottom, rgba(10, 10, 10, 0.45), rgba(10, 10, 10, 0.75)), url(https://img.youtube.com/vi/${videoId}/maxresdefault.jpg), url(https://img.youtube.com/vi/${videoId}/hqdefault.jpg)`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
           id="btn-vsl-unmute"
         >
           {/* Pulsing Speaker Wave Ring */}
