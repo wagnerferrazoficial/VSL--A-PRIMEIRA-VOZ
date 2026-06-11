@@ -1,0 +1,6 @@
+{
+  "name": "VSL Alta Conversão",
+  "description": "Uma página de vendas (VSL) mobile-first de alta performance com player otimizado estilo VTurb.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
