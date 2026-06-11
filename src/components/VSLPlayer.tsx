@@ -87,7 +87,7 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
     // Perfect scale-crop hack: 
     // We scale the iframe up slightly and make the container overflow-hidden.
     // This perfectly crops out the YouTube watermark, title, share button, and bottom controlsbar!
-    playerDiv.className = "w-full h-[112%] absolute -top-[6%] bottom-[-6%] left-[-6%] right-[-6%] scale-[1.12] pointer-events-none";
+    playerDiv.className = "w-full h-[112%] absolute -top-[6%] bottom-[-6%] left-0 right-0 scale-[1.12] pointer-events-none";
     containerRef.current.appendChild(playerDiv);
 
     playerRef.current = new window.YT.Player(uniqueId, {
