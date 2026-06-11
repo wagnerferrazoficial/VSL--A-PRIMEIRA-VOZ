@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { Volume2, VolumeX, Gauge, Maximize2, Minimize2 } from "lucide-react";
 
 interface VSLPlayerProps {
   videoId: string;
@@ -16,12 +17,21 @@ declare global {
 export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }: VSLPlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<any>(null);
+  const playerWrapperRef = useRef<HTMLDivElement>(null);
+  
   const [isPlaying, setIsPlaying] = useState(false);
   const [isBuffering, setIsBuffering] = useState(false);
   const [hasUnmuted, setHasUnmuted] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [apiReady, setApiReady] = useState(false);
+
+  // Custom Controls States
+  const [isMuted, setIsMuted] = useState(true);
+  const [volume, setVolume] = useState(100);
+  const [showVolumePopup, setShowVolumePopup] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Load YouTube Iframe API
   useEffect(() => {
@@ -37,6 +47,17 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
 
     window.onYouTubeIframeAPIReady = () => {
       setApiReady(true);
+    };
+  }, []);
+
+  // Handle Fullscreen state change natively across browsers
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
     };
   }, []);
 
@@ -83,6 +104,7 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
           try {
             event.target.mute();
             event.target.playVideo();
+            setIsMuted(true);
           } catch (err) {
             console.error(err);
           }
@@ -140,12 +162,80 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
     if (playerRef.current && typeof playerRef.current.unMute === "function") {
       try {
         playerRef.current.unMute();
+        playerRef.current.setVolume(100);
         playerRef.current.seekTo(0); // VTurb restart best-practice when unmuting
         playerRef.current.playVideo();
+        setIsMuted(false);
+        setVolume(100);
       } catch (err) {
         console.error(err);
       }
       setHasUnmuted(true);
+    }
+  };
+
+  // Custom Controls Functions
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!playerRef.current) return;
+    try {
+      if (isMuted) {
+        playerRef.current.unMute();
+        playerRef.current.setVolume(volume || 100);
+        setIsMuted(false);
+      } else {
+        playerRef.current.mute();
+        setIsMuted(true);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value, 10);
+    setVolume(value);
+    if (!playerRef.current) return;
+    try {
+      playerRef.current.setVolume(value);
+      if (value > 0) {
+        playerRef.current.unMute();
+        setIsMuted(false);
+      } else {
+        playerRef.current.mute();
+        setIsMuted(true);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const cyclePlaybackRate = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!playerRef.current || typeof playerRef.current.setPlaybackRate !== "function") return;
+    const rates = [1, 1.25, 1.5, 2];
+    const currentIndex = rates.indexOf(playbackRate);
+    const nextIndex = (currentIndex + 1) % rates.length;
+    const newRate = rates[nextIndex];
+    try {
+      playerRef.current.setPlaybackRate(newRate);
+      setPlaybackRate(newRate);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const toggleFullscreen = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!playerWrapperRef.current) return;
+    try {
+      if (!document.fullscreenElement) {
+        await playerWrapperRef.current.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (err) {
+      console.error("Fullscreen error", err);
     }
   };
 
@@ -168,7 +258,10 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
   const isVideoFullyActive = isPlaying && hasUnmuted;
 
   return (
-    <div className={`relative w-full ${isPortrait ? "aspect-[9/16]" : "aspect-video"} bg-neutral-950 rounded-2xl overflow-hidden shadow-2xl border border-neutral-900/40 select-none`}>
+    <div 
+      ref={playerWrapperRef}
+      className={`relative w-full ${isPortrait ? "aspect-[9/16]" : "aspect-video"} bg-neutral-950 rounded-2xl overflow-hidden shadow-2xl border border-neutral-900/40 select-none group`}
+    >
       
       {/* 
         Container of the player div. We keep overflow hidden to act as a crop mask for the scaled iframe.
@@ -218,6 +311,82 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
             </p>
           </div>
         </button>
+      )}
+
+      {/* Premium Fully Custom Transparent Control Overlay (Volume, Speed, Fullscreen) */}
+      {isVideoFullyActive && (
+        <div className="absolute inset-x-0 bottom-6 z-15 px-4 pb-1 pt-4 bg-gradient-to-t from-black/85 via-black/40 to-transparent flex items-center justify-between pointer-events-auto select-none opacity-100 transition-opacity duration-300">
+          
+          {/* Left-bottom side: Volume Speaker Toggle with Hover/Tap slider */}
+          <div 
+            className="flex items-center gap-2 relative"
+            onMouseEnter={() => setShowVolumePopup(true)}
+            onMouseLeave={() => setShowVolumePopup(false)}
+          >
+            <button
+              onClick={toggleMute}
+              className="w-11 h-11 flex items-center justify-center bg-black/55 backdrop-blur-md text-white rounded-full hover:bg-neutral-800/80 active:scale-90 transition-all shadow-md focus:outline-none"
+              title={isMuted ? "Ativar som" : "Desativar som"}
+              id="vsl-btn-mute-toggle"
+            >
+              {isMuted || volume === 0 ? (
+                <VolumeX className="w-5 h-5 text-orange-400 stroke-[2.5]" />
+              ) : (
+                <Volume2 className="w-5 h-5 text-neutral-100 stroke-[2.5]" />
+              )}
+            </button>
+
+            {/* Micro Volume Slider Panel */}
+            <div 
+              className={`flex items-center bg-black/85 backdrop-blur-md px-3 py-2 rounded-xl border border-neutral-800/80 shadow-lg transition-all duration-300 ${
+                showVolumePopup ? "opacity-100 translate-x-0 scale-100" : "opacity-0 -translate-x-3 scale-95 pointer-events-none"
+              }`}
+            >
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={isMuted ? 0 : volume}
+                onChange={handleVolumeChange}
+                className="w-16 h-1 bg-neutral-700 rounded-lg appearance-none cursor-pointer accent-orange-500"
+              />
+              <span className="text-[10px] font-mono text-neutral-300 ml-2 min-w-[24px]">
+                {isMuted ? "0%" : `${volume}%`}
+              </span>
+            </div>
+          </div>
+
+          {/* Right-bottom side: Speedometer toggle and Fullscreen corner bracket buttons */}
+          <div className="flex items-center gap-3">
+            {/* Speed / Pace Selector Badge */}
+            <button
+              onClick={cyclePlaybackRate}
+              className="h-11 px-4 flex items-center gap-1.5 bg-black/55 backdrop-blur-md rounded-full text-white border border-neutral-800/40 hover:bg-neutral-800/80 active:scale-90 transition-all shadow-md focus:outline-none"
+              title="Velocidade"
+              id="vsl-btn-speed-toggle"
+            >
+              <Gauge className="w-4 h-4 text-orange-400 stroke-[2.5]" />
+              <span className="text-xs font-black tracking-tight font-mono text-neutral-100">
+                {playbackRate}x
+              </span>
+            </button>
+
+            {/* Standard Fullscreen bracket corners toggle */}
+            <button
+              onClick={toggleFullscreen}
+              className="w-11 h-11 flex items-center justify-center bg-black/55 backdrop-blur-md text-white rounded-full hover:bg-neutral-800/80 active:scale-90 transition-all shadow-md focus:outline-none"
+              title="Tela Cheia"
+              id="vsl-btn-fullscreen-toggle"
+            >
+              {isFullscreen ? (
+                <Minimize2 className="w-5 h-5 text-orange-400 stroke-[2.5]" />
+              ) : (
+                <Maximize2 className="w-5 h-5 text-neutral-100 stroke-[2.5]" />
+              )}
+            </button>
+          </div>
+
+        </div>
       )}
 
       {/* VTurb Style Customized Progress Bar underneath (double thickness: h-6, highly visible retention orange) */}
