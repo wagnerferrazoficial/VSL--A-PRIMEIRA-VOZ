@@ -13,13 +13,13 @@ export default function App() {
         <div className="flex-1 flex flex-col justify-center items-center px-6 py-8 relative">
           
           {/* Headline / Título */}
-          <h1 className="text-xl font-extrabold text-neutral-900 text-center uppercase tracking-tight leading-snug mb-2">
-            Revolução Digital 2026
+          <h1 className="text-lg font-extrabold text-neutral-900 text-center tracking-tight leading-snug mb-3">
+            A maioria dos pais só percebem que perderam a influência sobre o filho, quando já é tarde demais.
           </h1>
 
           {/* Subtitle / Subtítulo */}
-          <p className="text-xs text-neutral-500 font-medium text-center leading-relaxed max-w-[280px] mb-8">
-            Assista à apresentação especial em formato vertical sobre captação e escala de leads qualificados.
+          <p className="text-xs text-neutral-500 font-medium text-center leading-relaxed max-w-[320px] mb-8">
+            Enquanto você acredita que está tudo bem, seu filho pode estar buscando orientação, validação e respostas em outros lugares. Entenda por que isso acontece e aprenda como voltar a ser a voz que ele mais respeita e procura.
           </p>
 
           {/* Optimized Portrait VSL Player (Occupies exactly 80% width) */}

@@ -344,7 +344,7 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
 
       {/* Buffering Indicator Overlay (Custom, zero YouTube branding) */}
       {isBuffering && isVideoFullyActive && (
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-10 pointer-events-none">
+        <div className="absolute inset-0 bg-black/10 flex items-center justify-center z-10 pointer-events-none">
           <div className="w-8 h-8 rounded-full border-2 border-orange-500 border-t-transparent animate-spin" />
         </div>
       )}
@@ -355,7 +355,7 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
           onClick={handleUnmuteClick}
           className="absolute inset-0 z-20 flex flex-col items-center justify-center transition-all duration-500 pointer-events-auto cursor-pointer"
           style={{
-            backgroundImage: `linear-gradient(to bottom, rgba(10, 10, 10, 0.45), rgba(10, 10, 10, 0.75)), url(https://img.youtube.com/vi/${videoId}/maxresdefault.jpg), url(https://img.youtube.com/vi/${videoId}/hqdefault.jpg)`,
+            backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.25)), url(https://img.youtube.com/vi/${videoId}/maxresdefault.jpg), url(https://img.youtube.com/vi/${videoId}/hqdefault.jpg)`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
@@ -390,17 +390,17 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
 
       {/* Paused Modal Overlay containing premium options: resume vs restart */}
       {isVideoFullyActive && isPlayerPaused && (
-        <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/85 backdrop-blur-md transition-all duration-300">
-          <div className="bg-neutral-950/95 border border-neutral-800/80 p-6 rounded-2xl max-w-sm w-[90%] text-center shadow-2xl animate-in zoom-in-95 duration-200">
+        <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/15 backdrop-blur-xs transition-all duration-300">
+          <div className="bg-white/95 border border-neutral-200/80 p-6 rounded-2xl max-w-sm w-[90%] text-center shadow-2xl animate-in zoom-in-95 duration-200">
             {/* Visual pause emblem */}
-            <div className="w-12 h-12 rounded-full bg-orange-500/20 text-orange-500 flex items-center justify-center mx-auto mb-3 animate-pulse">
+            <div className="w-12 h-12 rounded-full bg-orange-50/80 text-orange-600 flex items-center justify-center mx-auto mb-3 animate-pulse">
               <Pause className="w-6 h-6 stroke-[2.5]" />
             </div>
             
-            <h3 className="text-white text-sm font-black uppercase tracking-wider mb-1">
+            <h3 className="text-neutral-900 text-sm font-black uppercase tracking-wider mb-1">
               Vídeo Pausado
             </h3>
-            <p className="text-neutral-400 text-xs mb-5 px-3">
+            <p className="text-neutral-600 text-xs mb-5 px-3">
               Escolha uma opção para continuar assistindo à apresentação:
             </p>
 
@@ -418,10 +418,10 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
               {/* Option 2: Recomeçar do Início (Restart) */}
               <button
                 onClick={restartVideo}
-                className="w-full h-11 py-2.5 px-4 bg-neutral-900 hover:bg-neutral-800 hover:text-white active:scale-95 text-neutral-300 font-bold text-xs uppercase tracking-wider rounded-xl transition-all border border-neutral-805 flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full h-11 py-2.5 px-4 bg-neutral-100 hover:bg-neutral-200 hover:text-neutral-900 active:scale-95 text-neutral-700 font-bold text-xs uppercase tracking-wider rounded-xl transition-all border border-neutral-300/60 flex items-center justify-center gap-2 cursor-pointer"
                 style={{ minHeight: "44px" }}
               >
-                <RotateCcw className="w-3.5 h-3.5 text-neutral-450" />
+                <RotateCcw className="w-3.5 h-3.5 text-neutral-500" />
                 <span>Recomeçar do início</span>
               </button>
             </div>
@@ -569,7 +569,7 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
             {/* Premium Fullscreen bracket corners toggle */}
             <button
               onClick={toggleFullscreen}
-              className="w-6 h-6 flex items-center justify-center bg-neutral-900/60 backdrop-blur-sm text-white rounded-lg hover:bg-neutral-800/80 active:scale-95 transition-all shadow-md focus:outline-none cursor-pointer"
+              className="w-6 h-6 mr-1.5 flex items-center justify-center bg-neutral-900/60 backdrop-blur-sm text-white rounded-lg hover:bg-neutral-800/80 active:scale-95 transition-all shadow-md focus:outline-none cursor-pointer"
               style={{ minHeight: "22px" }}
               title="Tela Cheia"
               id="vsl-btn-fullscreen-toggle"
