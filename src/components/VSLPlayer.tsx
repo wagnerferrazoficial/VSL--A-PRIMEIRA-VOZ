@@ -431,7 +431,7 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
 
       {/* Integrated Progress & Modern Control Bar */}
       {isVideoFullyActive && (
-        <div className="absolute bottom-0 left-0 right-0 h-9 bg-neutral-950/95 border-t border-neutral-900/60 z-20 flex items-center justify-between px-3 md:px-4 select-none pointer-events-auto">
+        <div className="absolute bottom-0 left-0 right-0 h-11 bg-neutral-950/95 border-t border-neutral-900/60 z-20 flex items-center justify-between px-3 md:px-4 select-none pointer-events-auto">
           {/* Progress fill integrated at the top edge of this Control Bar */}
           <div className="absolute top-0 left-0 right-0 h-1 bg-neutral-900/50">
             <div
@@ -448,21 +448,20 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
                 e.stopPropagation();
                 handleVideoClickOrToggle();
               }}
-              className="w-6 h-6 flex items-center justify-center bg-neutral-900/60 backdrop-blur-sm text-white rounded-lg hover:bg-neutral-800/80 active:scale-95 transition-all shadow-md focus:outline-none cursor-pointer"
-              style={{ minHeight: "22px" }}
+              className="w-8 h-8 flex items-center justify-center bg-neutral-900/70 border border-neutral-800/40 text-white rounded-lg hover:bg-neutral-800/95 active:scale-95 transition-all shadow-md focus:outline-none cursor-pointer"
               title={isPlayerPaused ? "Iniciar vídeo" : "Pausar vídeo"}
               id="vsl-btn-play-pause-toggle"
             >
               {isPlayerPaused ? (
-                <Play className="w-3 h-3 fill-white text-white" />
+                <Play className="w-3.5 h-3.5 fill-white text-white" />
               ) : (
-                <Pause className="w-3 h-3 text-neutral-100 stroke-[2.5]" />
+                <Pause className="w-3.5 h-3.5 text-neutral-100 stroke-[2.5]" />
               )}
             </button>
 
             {/* Direct Inline Accessible Volume Control (No hover hurdles, incredibly easy to slide on mobile) */}
             <div 
-              className="flex items-center gap-1.5 relative bg-neutral-950/40 border border-neutral-900/20 px-1.5 py-0.5 rounded-lg"
+              className="flex items-center gap-1.5 relative bg-neutral-950/40 border border-neutral-900/20 px-2 py-1 rounded-lg"
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
               onClick={(e) => e.stopPropagation()}
@@ -472,15 +471,14 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
                   e.stopPropagation();
                   toggleMute(e);
                 }}
-                className="w-6 h-6 flex items-center justify-center bg-neutral-900/60 backdrop-blur-sm text-white rounded-lg hover:bg-neutral-800/80 active:scale-95 transition-all shadow-md focus:outline-none cursor-pointer"
-                style={{ minHeight: "22px" }}
+                className="w-7 h-7 flex items-center justify-center bg-neutral-900/60 backdrop-blur-sm text-white rounded-lg hover:bg-neutral-800/80 active:scale-95 transition-all shadow-md focus:outline-none cursor-pointer"
                 title={isMuted ? "Ativar som" : "Desativar som"}
                 id="vsl-btn-mute-toggle"
               >
                 {isMuted || volume === 0 ? (
-                  <VolumeX className="w-3 h-3 text-orange-400 stroke-[2.5]" />
+                  <VolumeX className="w-3.5 h-3.5 text-orange-400 stroke-[2.5]" />
                 ) : (
-                  <Volume2 className="w-3 h-3 text-neutral-100 stroke-[2.5]" />
+                  <Volume2 className="w-3.5 h-3.5 text-neutral-100 stroke-[2.5]" />
                 )}
               </button>
 
@@ -495,18 +493,18 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
                   WebkitAppearance: "none",
                 }}
               />
-              <span className="text-[8px] font-mono text-neutral-400 select-none min-w-[20px] text-right">
+              <span className="text-[9px] font-mono font-medium text-neutral-300 select-none min-w-[22px] text-right">
                 {isMuted ? "0%" : `${volume}%`}
               </span>
             </div>
           </div>
 
           {/* Right Side: Speed Selector & Fullscreen */}
-          <div className="flex items-center gap-2 relative z-10">
+          <div className="flex items-center gap-2 relative z-10 pr-1 select-none">
             {/* Speed Option Popup Panel (Occupies exactly 15% width of the video screen area) */}
             {showSpeedSelector && (
               <div 
-                className="absolute right-0 bottom-11 z-30 w-[120px] bg-neutral-950/95 backdrop-blur-2xl border border-neutral-800/80 rounded-2xl p-1 shadow-2xl flex flex-col justify-between items-center transition-all animate-in fade-in slide-in-from-right-4 duration-300"
+                className="absolute right-0 bottom-12 z-30 w-[120px] bg-neutral-950/95 backdrop-blur-2xl border border-neutral-800/80 rounded-2xl p-1 shadow-2xl flex flex-col justify-between items-center transition-all animate-in fade-in slide-in-from-right-4 duration-300"
                 onMouseLeave={() => setShowSpeedSelector(false)}
               >
                 {/* Section title header */}
@@ -553,15 +551,14 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
             {/* Speed / Pace Selector Badge */}
             <button
               onClick={toggleSpeedSelector}
-              className={`h-6 px-2 flex items-center gap-1 bg-neutral-900/60 backdrop-blur-sm rounded-lg text-white border transition-all duration-200 active:scale-95 shadow-md focus:outline-none cursor-pointer ${
+              className={`h-8 px-2 flex items-center gap-1 bg-neutral-900/60 backdrop-blur-sm rounded-lg text-white border transition-all duration-200 active:scale-95 shadow-md focus:outline-none cursor-pointer ${
                 showSpeedSelector ? "border-orange-500/80 bg-neutral-900" : "border-neutral-800/40 hover:bg-neutral-800/80"
               }`}
-              style={{ minHeight: "22px" }}
               title="Velocidade"
               id="vsl-btn-speed-toggle"
             >
-              <Gauge className="w-3 h-3 text-orange-400 stroke-[2.5]" />
-              <span className="text-[10px] font-black tracking-tight font-mono text-neutral-100">
+              <Gauge className="w-3.5 h-3.5 text-orange-400 stroke-[2.5]" />
+              <span className="text-[11px] font-black tracking-tight font-mono text-neutral-100">
                 {playbackRate === 1 ? "1.0x" : `${playbackRate}x`}
               </span>
             </button>
@@ -569,15 +566,14 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
             {/* Premium Fullscreen bracket corners toggle */}
             <button
               onClick={toggleFullscreen}
-              className="w-6 h-6 mr-1.5 flex items-center justify-center bg-neutral-900/60 backdrop-blur-sm text-white rounded-lg hover:bg-neutral-800/80 active:scale-95 transition-all shadow-md focus:outline-none cursor-pointer"
-              style={{ minHeight: "22px" }}
+              className="w-8 h-8 mr-1 flex items-center justify-center bg-neutral-900/70 border border-neutral-800/40 text-white rounded-lg hover:bg-neutral-800/95 active:scale-95 transition-all shadow-md focus:outline-none cursor-pointer"
               title="Tela Cheia"
               id="vsl-btn-fullscreen-toggle"
             >
               {isFullscreen ? (
-                <Minimize2 className="w-3 h-3 text-orange-400 stroke-[2.5]" />
+                <Minimize2 className="w-4 h-4 text-orange-400 stroke-[2.5]" />
               ) : (
-                <Maximize2 className="w-3 h-3 text-neutral-100 stroke-[2.5]" />
+                <Maximize2 className="w-4 h-4 text-neutral-100 stroke-[2.5]" />
               )}
             </button>
           </div>
