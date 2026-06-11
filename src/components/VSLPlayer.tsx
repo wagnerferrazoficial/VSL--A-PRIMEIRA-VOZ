@@ -455,14 +455,18 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
               )}
             </button>
 
-            {/* Volume Popover trigger element */}
+            {/* Direct Inline Accessible Volume Control (No hover hurdles, incredibly easy to slide on mobile) */}
             <div 
-              className="flex items-center gap-2 relative"
-              onMouseEnter={() => setShowVolumePopup(true)}
-              onMouseLeave={() => setShowVolumePopup(false)}
+              className="flex items-center gap-1.5 relative bg-neutral-950/40 border border-neutral-900/20 px-1.5 py-0.5 rounded-lg"
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
             >
               <button
-                onClick={toggleMute}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleMute(e);
+                }}
                 className="w-6 h-6 flex items-center justify-center bg-neutral-900/60 backdrop-blur-sm text-white rounded-lg hover:bg-neutral-800/80 active:scale-95 transition-all shadow-md focus:outline-none cursor-pointer"
                 style={{ minHeight: "22px" }}
                 title={isMuted ? "Ativar som" : "Desativar som"}
@@ -475,24 +479,20 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
                 )}
               </button>
 
-              {/* Compact Slide-out Volume Control */}
-              <div 
-                className={`flex items-center bg-neutral-950/95 border border-neutral-800/80 px-2 py-1 rounded-md shadow-lg transition-all duration-300 absolute left-8 ${
-                  showVolumePopup ? "opacity-100 scale-100 translate-x-0" : "opacity-0 scale-95 -translate-x-2 pointer-events-none"
-                }`}
-              >
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={isMuted ? 0 : volume}
-                  onChange={handleVolumeChange}
-                  className="w-16 h-1 bg-neutral-700 rounded-lg appearance-none cursor-pointer accent-orange-500"
-                />
-                <span className="text-[9px] font-mono text-neutral-400 ml-2 min-w-[20px]">
-                  {isMuted ? "0%" : `${volume}%`}
-                </span>
-              </div>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={isMuted ? 0 : volume}
+                onChange={handleVolumeChange}
+                className="w-12 sm:w-16 h-1.5 bg-neutral-700/80 rounded-lg appearance-none cursor-pointer accent-orange-500 focus:outline-none leading-none"
+                style={{
+                  WebkitAppearance: "none",
+                }}
+              />
+              <span className="text-[8px] font-mono text-neutral-400 select-none min-w-[20px] text-right">
+                {isMuted ? "0%" : `${volume}%`}
+              </span>
             </div>
           </div>
 
