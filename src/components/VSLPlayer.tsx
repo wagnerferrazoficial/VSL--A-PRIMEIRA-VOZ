@@ -407,7 +407,7 @@ export default function VSLPlayer({ videoId, onTimeUpdate, isPortrait = false }:
                 style={{ minHeight: "44px" }}
               >
                 <Play className="w-3.5 h-3.5 fill-white text-white" />
-                <span>Voltar aonde pariu</span>
+                <span>Voltar aonde parou</span>
               </button>
 
               {/* Option 2: Recomeçar do Início (Restart) */}
